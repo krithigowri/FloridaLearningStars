@@ -1,0 +1,178 @@
+import React, { useState, useEffect } from 'react';
+import { Book, Beaker, Star, Trophy, Clock, Plus, ChevronRight, ArrowLeft, Sparkles, Flame, Home } from 'lucide-react';
+
+const AVATARS = ['🐶', '🐱', '🦊', '🐻', '🐼', '🦁', '🐯', '🐸', '🦄', '🐉', '🦖', '🦕', '🚀', '⭐', '🌈', '🎨'];
+
+const TOPICS = {
+  0: {
+    math: [
+      { id: 'k_counting', name: 'Counting to 20', standard: 'MAFS.K.CC.1.1' },
+      { id: 'k_addition', name: 'Addition within 10', standard: 'MAFS.K.OA.1.1' },
+      { id: 'k_shapes', name: 'Shapes', standard: 'MAFS.K.G.1.2' }
+    ],
+    reading: [
+      { id: 'k_letters', name: 'Letter Recognition', standard: 'LAFS.K.RF.1.1' },
+      { id: 'k_rhyming', name: 'Rhyming Words', standard: 'LAFS.K.RF.2.2a' }
+    ],
+    science: [
+      { id: 'k_living', name: 'Living Things', standard: 'SC.K.L.14.1' },
+      { id: 'k_senses', name: 'Five Senses', standard: 'SC.K.N.1.1' }
+    ]
+  },
+  1: {
+    math: [
+      { id: '1_addition', name: 'Addition within 20', standard: 'MAFS.1.OA.1.1' },
+      { id: '1_subtraction', name: 'Subtraction within 20', standard: 'MAFS.1.OA.1.1' },
+      { id: '1_place_value', name: 'Place Value', standard: 'MAFS.1.NBT.2.2' }
+    ],
+    reading: [
+      { id: '1_phonics', name: 'Phonics Patterns', standard: 'LAFS.1.RF.3.3' },
+      { id: '1_story', name: 'Story Elements', standard: 'LAFS.1.RL.1.3' }
+    ],
+    science: [
+      { id: '1_matter', name: 'Properties of Matter', standard: 'SC.1.P.8.1' },
+      { id: '1_motion', name: 'Forces and Motion', standard: 'SC.1.P.12.1' }
+    ]
+  },
+  2: {
+    math: [
+      { id: '2_addition', name: 'Addition within 100', standard: 'MAFS.2.OA.2.2' },
+      { id: '2_subtraction', name: 'Subtraction within 100', standard: 'MAFS.2.OA.2.2' },
+      { id: '2_money', name: 'Money and Coins', standard: 'MAFS.2.MD.3.8' }
+    ],
+    reading: [
+      { id: '2_character', name: 'Character Analysis', standard: 'LAFS.2.RL.1.3' },
+      { id: '2_cause_effect', name: 'Cause and Effect', standard: 'LAFS.2.RI.1.3' }
+    ],
+    science: [
+      { id: '2_energy', name: 'Forms of Energy', standard: 'SC.2.P.10.1' },
+      { id: '2_life_cycles', name: 'Life Cycles', standard: 'SC.2.L.16.1' }
+    ]
+  },
+  3: {
+    math: [
+      { id: '3_multiplication', name: 'Multiplication', standard: 'MAFS.3.OA.3.7' },
+      { id: '3_division', name: 'Division', standard: 'MAFS.3.OA.3.7' },
+      { id: '3_fractions', name: 'Fractions', standard: 'MAFS.3.NF.1.1' }
+    ],
+    reading: [
+      { id: '3_theme', name: 'Theme', standard: 'LAFS.3.RL.1.2' },
+      { id: '3_main_idea', name: 'Main Idea', standard: 'LAFS.3.RI.1.2' }
+    ],
+    science: [
+      { id: '3_forces', name: 'Forces and Motion', standard: 'SC.3.P.10.1' },
+      { id: '3_magnets', name: 'Magnets', standard: 'SC.3.P.10.3' }
+    ]
+  },
+  4: {
+    math: [
+      { id: '4_multi_digit', name: 'Multi-Digit Operations', standard: 'MAFS.4.NBT.2.5' },
+      { id: '4_fractions', name: 'Fraction Operations', standard: 'MAFS.4.NF.2.3' }
+    ],
+    reading: [
+      { id: '4_theme', name: 'Theme Analysis', standard: 'LAFS.4.RL.1.2' },
+      { id: '4_inferences', name: 'Making Inferences', standard: 'LAFS.4.RL.1.1' }
+    ],
+    science: [
+      { id: '4_energy', name: 'Energy Transfer', standard: 'SC.4.P.10.1' }
+    ]
+  },
+  5: {
+    math: [
+      { id: '5_decimals', name: 'Decimal Operations', standard: 'MAFS.5.NBT.2.7' },
+      { id: '5_fractions', name: 'Fraction Operations', standard: 'MAFS.5.NF.1.1' }
+    ],
+    reading: [
+      { id: '5_theme', name: 'Theme Comparison', standard: 'LAFS.5.RL.1.2' },
+      { id: '5_point_of_view', name: 'Point of View', standard: 'LAFS.5.RL.2.6' }
+    ],
+    science: [
+      { id: '5_matter', name: 'Properties of Matter', standard: 'SC.5.P.8.1' }
+    ]
+  }
+};
+
+// Sample question bank - simplified for stability
+const QUESTIONS = [
+  // K Counting (20)
+  { id: 'k_c1', subject: 'math', grade: 0, topicId: 'k_counting', question: 'How many stars? ⭐⭐⭐', options: ['2', '3', '4', '5'], correct: 1, explanation: 'Count: 1, 2, 3. There are 3 stars!', stars: 1 },
+  { id: 'k_c2', subject: 'math', grade: 0, topicId: 'k_counting', question: 'Count: 🍎🍎🍎🍎🍎', options: ['4', '5', '6', '7'], correct: 1, explanation: 'There are 5 apples!', stars: 1 },
+  { id: 'k_c3', subject: 'math', grade: 0, topicId: 'k_counting', question: 'What comes after 7?', options: ['6', '7', '8', '9'], correct: 2, explanation: 'After 7 comes 8!', stars: 2 },
+  { id: 'k_c4', subject: 'math', grade: 0, topicId: 'k_counting', question: 'Count: 🐶🐶🐶🐶🐶🐶', options: ['5', '6', '7', '8'], correct: 1, explanation: 'There are 6 dogs!', stars: 1 },
+  { id: 'k_c5', subject: 'math', grade: 0, topicId: 'k_counting', question: 'Which is more: 3 or 5?', options: ['3', '5', 'Same', 'None'], correct: 1, explanation: '5 is more than 3!', stars: 2 },
+  { id: 'k_c6', subject: 'math', grade: 0, topicId: 'k_counting', question: 'Count: 🌟🌟🌟🌟', options: ['3', '4', '5', '6'], correct: 1, explanation: 'There are 4 stars!', stars: 1 },
+  { id: 'k_c7', subject: 'math', grade: 0, topicId: 'k_counting', question: 'What comes before 10?', options: ['8', '9', '10', '11'], correct: 1, explanation: '9 comes before 10!', stars: 2 },
+  { id: 'k_c8', subject: 'math', grade: 0, topicId: 'k_counting', question: 'Count: 🎈🎈🎈🎈🎈🎈🎈🎈', options: ['6', '7', '8', '9'], correct: 2, explanation: 'There are 8 balloons!', stars: 2 },
+  { id: 'k_c9', subject: 'math', grade: 0, topicId: 'k_counting', question: 'Which is less: 2 or 6?', options: ['2', '6', 'Same', 'None'], correct: 0, explanation: '2 is less than 6!', stars: 2 },
+  { id: 'k_c10', subject: 'math', grade: 0, topicId: 'k_counting', question: 'How many? 🐱🐱', options: ['1', '2', '3', '4'], correct: 1, explanation: 'There are 2 cats!', stars: 1 },
+  { id: 'k_c11', subject: 'math', grade: 0, topicId: 'k_counting', question: 'What comes after 5?', options: ['4', '5', '6', '7'], correct: 2, explanation: 'After 5 comes 6!', stars: 1 },
+  { id: 'k_c12', subject: 'math', grade: 0, topicId: 'k_counting', question: 'Count: 🚗🚗🚗🚗🚗🚗🚗', options: ['6', '7', '8', '9'], correct: 1, explanation: 'There are 7 cars!', stars: 2 },
+  { id: 'k_c13', subject: 'math', grade: 0, topicId: 'k_counting', question: 'Which is bigger: 4 or 2?', options: ['2', '4', 'Same', 'None'], correct: 1, explanation: '4 is bigger than 2!', stars: 2 },
+  { id: 'k_c14', subject: 'math', grade: 0, topicId: 'k_counting', question: 'Count: 🦋🦋🦋🦋🦋🦋🦋🦋🦋', options: ['7', '8', '9', '10'], correct: 2, explanation: 'There are 9 butterflies!', stars: 2 },
+  { id: 'k_c15', subject: 'math', grade: 0, topicId: 'k_counting', question: 'What comes after 12?', options: ['11', '12', '13', '14'], correct: 2, explanation: 'After 12 comes 13!', stars: 2 },
+  { id: 'k_c16', subject: 'math', grade: 0, topicId: 'k_counting', question: 'Count: 🍌🍌🍌🍌🍌🍌🍌🍌🍌🍌', options: ['8', '9', '10', '11'], correct: 2, explanation: 'There are 10 bananas!', stars: 2 },
+  { id: 'k_c17', subject: 'math', grade: 0, topicId: 'k_counting', question: 'Which is smallest: 7, 3, or 5?', options: ['7', '3', '5', 'Same'], correct: 1, explanation: '3 is the smallest!', stars: 2 },
+  { id: 'k_c18', subject: 'math', grade: 0, topicId: 'k_counting', question: 'How many fingers on one hand?', options: ['3', '4', '5', '6'], correct: 2, explanation: 'One hand has 5 fingers!', stars: 1 },
+  { id: 'k_c19', subject: 'math', grade: 0, topicId: 'k_counting', question: 'What comes before 5?', options: ['3', '4', '5', '6'], correct: 1, explanation: '4 comes before 5!', stars: 2 },
+  { id: 'k_c20', subject: 'math', grade: 0, topicId: 'k_counting', question: 'How many eyes do you have?', options: ['1', '2', '3', '4'], correct: 1, explanation: 'You have 2 eyes!', stars: 1 },
+
+  // K Addition (20)
+  { id: 'k_a1', subject: 'math', grade: 0, topicId: 'k_addition', question: '1 + 1 = ?', options: ['1', '2', '3', '4'], correct: 1, explanation: '1 plus 1 equals 2!', stars: 1 },
+  { id: 'k_a2', subject: 'math', grade: 0, topicId: 'k_addition', question: '2 + 3 = ?', options: ['3', '4', '5', '6'], correct: 2, explanation: '2 + 3 = 5!', stars: 2 },
+  { id: 'k_a3', subject: 'math', grade: 0, topicId: 'k_addition', question: '2 + 2 = ?', options: ['2', '3', '4', '5'], correct: 2, explanation: '2 plus 2 equals 4!', stars: 1 },
+  { id: 'k_a4', subject: 'math', grade: 0, topicId: 'k_addition', question: '3 + 1 = ?', options: ['2', '3', '4', '5'], correct: 2, explanation: '3 plus 1 equals 4!', stars: 1 },
+  { id: 'k_a5', subject: 'math', grade: 0, topicId: 'k_addition', question: '4 + 2 = ?', options: ['4', '5', '6', '7'], correct: 2, explanation: '4 + 2 = 6!', stars: 2 },
+  { id: 'k_a6', subject: 'math', grade: 0, topicId: 'k_addition', question: '5 + 0 = ?', options: ['0', '4', '5', '6'], correct: 2, explanation: '5 plus 0 equals 5!', stars: 1 },
+  { id: 'k_a7', subject: 'math', grade: 0, topicId: 'k_addition', question: '1 + 4 = ?', options: ['3', '4', '5', '6'], correct: 2, explanation: '1 plus 4 equals 5!', stars: 2 },
+  { id: 'k_a8', subject: 'math', grade: 0, topicId: 'k_addition', question: '2 + 3 = ?', options: ['4', '5', '6', '7'], correct: 1, explanation: '2 plus 3 equals 5!', stars: 1 },
+  { id: 'k_a9', subject: 'math', grade: 0, topicId: 'k_addition', question: '3 + 3 = ?', options: ['5', '6', '7', '8'], correct: 1, explanation: '3 plus 3 equals 6!', stars: 2 },
+  { id: 'k_a10', subject: 'math', grade: 0, topicId: 'k_addition', question: '4 + 4 = ?', options: ['6', '7', '8', '9'], correct: 2, explanation: '4 plus 4 equals 8!', stars: 2 },
+  { id: 'k_a11', subject: 'math', grade: 0, topicId: 'k_addition', question: '0 + 3 = ?', options: ['0', '2', '3', '4'], correct: 2, explanation: '0 plus 3 equals 3!', stars: 1 },
+  { id: 'k_a12', subject: 'math', grade: 0, topicId: 'k_addition', question: '5 + 2 = ?', options: ['5', '6', '7', '8'], correct: 2, explanation: '5 plus 2 equals 7!', stars: 2 },
+  { id: 'k_a13', subject: 'math', grade: 0, topicId: 'k_addition', question: '1 + 2 = ?', options: ['2', '3', '4', '5'], correct: 1, explanation: '1 plus 2 equals 3!', stars: 1 },
+  { id: 'k_a14', subject: 'math', grade: 0, topicId: 'k_addition', question: '3 + 2 = ?', options: ['4', '5', '6', '7'], correct: 1, explanation: '3 plus 2 equals 5!', stars: 1 },
+  { id: 'k_a15', subject: 'math', grade: 0, topicId: 'k_addition', question: '2 + 4 = ?', options: ['5', '6', '7', '8'], correct: 1, explanation: '2 plus 4 equals 6!', stars: 2 },
+  { id: 'k_a16', subject: 'math', grade: 0, topicId: 'k_addition', question: '4 + 1 = ?', options: ['3', '4', '5', '6'], correct: 2, explanation: '4 plus 1 equals 5!', stars: 1 },
+  { id: 'k_a17', subject: 'math', grade: 0, topicId: 'k_addition', question: '5 + 3 = ?', options: ['6', '7', '8', '9'], correct: 2, explanation: '5 plus 3 equals 8!', stars: 2 },
+  { id: 'k_a18', subject: 'math', grade: 0, topicId: 'k_addition', question: '3 + 4 = ?', options: ['6', '7', '8', '9'], correct: 1, explanation: '3 plus 4 equals 7!', stars: 2 },
+  { id: 'k_a19', subject: 'math', grade: 0, topicId: 'k_addition', question: '2 + 5 = ?', options: ['5', '6', '7', '8'], correct: 2, explanation: '2 plus 5 equals 7!', stars: 2 },
+  { id: 'k_a20', subject: 'math', grade: 0, topicId: 'k_addition', question: '5 + 5 = ?', options: ['8', '9', '10', '11'], correct: 2, explanation: '5 plus 5 equals 10!', stars: 2 },
+
+  // K Shapes (20)
+  { id: 'k_s1', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'How many sides does a triangle have?', options: ['2', '3', '4', '5'], correct: 1, explanation: 'A triangle has 3 sides!', stars: 1 },
+  { id: 'k_s2', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'Which shape is round?', options: ['Square', 'Triangle', 'Circle', 'Rectangle'], correct: 2, explanation: 'A circle is round!', stars: 1 },
+  { id: 'k_s3', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'How many sides does a square have?', options: ['2', '3', '4', '5'], correct: 2, explanation: 'A square has 4 sides!', stars: 1 },
+  { id: 'k_s4', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'Which shape has no corners?', options: ['Square', 'Triangle', 'Circle', 'Rectangle'], correct: 2, explanation: 'A circle has no corners!', stars: 2 },
+  { id: 'k_s5', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'How many corners does a square have?', options: ['2', '3', '4', '5'], correct: 2, explanation: 'A square has 4 corners!', stars: 2 },
+  { id: 'k_s6', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'How many corners does a triangle have?', options: ['2', '3', '4', '5'], correct: 1, explanation: 'A triangle has 3 corners!', stars: 2 },
+  { id: 'k_s7', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'Which shape has 4 equal sides?', options: ['Triangle', 'Circle', 'Square', 'Oval'], correct: 2, explanation: 'A square has 4 equal sides!', stars: 2 },
+  { id: 'k_s8', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'A pizza slice looks like what?', options: ['Circle', 'Triangle', 'Square', 'Rectangle'], correct: 1, explanation: 'A pizza slice looks like a triangle!', stars: 2 },
+  { id: 'k_s9', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'A door looks like what?', options: ['Circle', 'Triangle', 'Rectangle', 'Star'], correct: 2, explanation: 'A door looks like a rectangle!', stars: 2 },
+  { id: 'k_s10', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'A ball is shaped like a?', options: ['Square', 'Triangle', 'Circle', 'Rectangle'], correct: 2, explanation: 'A ball is shaped like a circle!', stars: 1 },
+  { id: 'k_s11', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'How many sides does a circle have?', options: ['0', '1', '2', '3'], correct: 0, explanation: 'A circle has no straight sides!', stars: 2 },
+  { id: 'k_s12', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'A book looks like what?', options: ['Circle', 'Triangle', 'Rectangle', 'Star'], correct: 2, explanation: 'A book looks like a rectangle!', stars: 2 },
+  { id: 'k_s13', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'Which shape has most sides?', options: ['Triangle', 'Square', 'Circle', 'Same'], correct: 1, explanation: 'A square has 4 sides, triangle has 3!', stars: 2 },
+  { id: 'k_s14', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'A clock face is what shape?', options: ['Square', 'Triangle', 'Circle', 'Rectangle'], correct: 2, explanation: 'A clock face is a circle!', stars: 1 },
+  { id: 'k_s15', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'How many points does a star have?', options: ['3', '4', '5', '6'], correct: 2, explanation: 'A star usually has 5 points!', stars: 2 },
+  { id: 'k_s16', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'Which shape can roll?', options: ['Square', 'Triangle', 'Circle', 'Rectangle'], correct: 2, explanation: 'A circle can roll!', stars: 2 },
+  { id: 'k_s17', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'A box looks like what?', options: ['Circle', 'Triangle', 'Square', 'Star'], correct: 2, explanation: 'A box looks like a square!', stars: 1 },
+  { id: 'k_s18', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'A window can be what shape?', options: ['Circle', 'Triangle', 'Square', 'All'], correct: 3, explanation: 'Windows can be many shapes!', stars: 2 },
+  { id: 'k_s19', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'A ruler is what shape?', options: ['Circle', 'Triangle', 'Rectangle', 'Square'], correct: 2, explanation: 'A ruler is a long rectangle!', stars: 2 },
+  { id: 'k_s20', subject: 'math', grade: 0, topicId: 'k_shapes', question: 'A coin is what shape?', options: ['Square', 'Triangle', 'Circle', 'Rectangle'], correct: 2, explanation: 'A coin is a circle!', stars: 1 },
+
+  // K Letters (20)
+  { id: 'k_l1', subject: 'reading', grade: 0, topicId: 'k_letters', question: 'Which letter is this? A', options: ['A', 'B', 'C', 'D'], correct: 0, explanation: 'This is letter A!', stars: 1 },
+  { id: 'k_l2', subject: 'reading', grade: 0, topicId: 'k_letters', question: 'Which letter is this? B', options: ['A', 'B', 'C', 'D'], correct: 1, explanation: 'This is letter B!', stars: 1 },
+  { id: 'k_l3', subject: 'reading', grade: 0, topicId: 'k_letters', question: 'Which letter is this? M', options: ['N', 'M', 'W', 'V'], correct: 1, explanation: 'This is letter M!', stars: 1 },
+  { id: 'k_l4', subject: 'reading', grade: 0, topicId: 'k_letters', question: 'Which is lowercase?', options: ['a', 'A', 'Both', 'None'], correct: 0, explanation: 'Lowercase a is smaller!', stars: 2 },
+  { id: 'k_l5', subject: 'reading', grade: 0, topicId: 'k_letters', question: 'Which letter is this? S', options: ['R', 'S', 'T', 'U'], correct: 1, explanation: 'This is letter S!', stars: 1 },
+  { id: 'k_l6', subject: 'reading', grade: 0, topicId: 'k_letters', question: 'Which letter is this? T', options: ['S', 'T', 'U', 'V'], correct: 1, explanation: 'This is letter T!', stars: 1 },
+  { id: 'k_l7', subject: 'reading', grade: 0, topicId: 'k_letters', question: 'Which letter comes after C?', options: ['B', 'C', 'D', 'E'], correct: 2, explanation: 'D comes after C!', stars: 2 },
+  { id: 'k_l8', subject: 'reading', grade: 0, topicId: 'k_letters', question: 'Which letter is this? F', options: ['E', 'F', 'G', 'H'], correct: 1, explanation: 'This is letter F!', stars: 1 },
+  { id: 'k_l9', subject: 'reading', grade: 0, topicId: 'k_letters', question: 'First letter of alphabet?', options: ['A', 'B', 'C', 'Z'], correct: 0, explanation: 'A is the first letter!', stars: 2 },
+  { id: 'k_l10', subject: 'reading', grade: 0, topicId: 'k_letters', question: 'Which letter is this? Z', options: ['X', 'Y', 'Z', 'W'], correct: 2, explanation: 'This is letter Z!', stars: 1 },
+  { id: 'k_l11', subject: 'reading', grade: 0, topicId: 'k_letters', question: 'Which letter is this? P', options: ['P', 'Q', 'R', 'S'], correct: 0, explanation: 'This is letter P!', stars: 1 },
+  { id: 'k_l12', subject: 'reading', grade: 0, topicId: 'k_letters', question: 'Which is uppercase?', options: ['b', 'B', 'Both', 'None'], correct: 1, explanation: 'Uppercase B is bigger!', stars: 2 },
+  { id: 'k_l13', subject: 'reading', grade: 0, topicId: 'k_letters', question: 'Which letter is this? H', options: ['G', 'H', 'I', 'J'], correct: 1, explanation: 'This is letter H!', stars: 1 },
+  { id: 'k_l14', subject: 'reading', grade: 0, topicId: 'k_letters', question: 'Which letter is this? K', options: ['J', 'K', 'L', 'M'], correct: 1, explanation: 'This is letter K!', stars: 1 },
+  { id: 'k_l15',
