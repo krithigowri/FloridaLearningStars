@@ -1,0 +1,3 @@
+{
+    "content": "pluginManagement {\n    repositories {\n        google()\n        mavenCentral()\n        gradlePluginPortal()\n    }\n}\ndependencyResolutionManagement {\n    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)\n    repositories {\n        google()\n        mavenCentral()\n    }\n}\n\nrootProject.name = \"FloridaLearningApp\"\ninclude(\":app\")\n",
+    "filePath": "C:\\Users\\krisr\\StudioProjects\\FloridaLearningStars\\FloridaLearningApp\\settings.gradle.kts"
